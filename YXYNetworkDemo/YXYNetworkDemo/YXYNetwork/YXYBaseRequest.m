@@ -43,6 +43,8 @@
             NSException *exception = [[NSException alloc]initWithName:@"YXYBaseRequest Exception" reason:@"API中没有遵循YXYAPIRequest协议" userInfo:nil];
             @throw exception;
         }
+        _config = [YXYNetworkConfig sharedInstance];
+        _agent = [[YXYNetworkAgent alloc] init];
     }
     return self;
 }
