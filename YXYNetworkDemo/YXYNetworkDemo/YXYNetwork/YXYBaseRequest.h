@@ -40,10 +40,11 @@ typedef NS_ENUM(NSInteger , YXYRequestSerializerType) {
 
 /*--------------------------------------------*/
 //MARK: base config
+
 /**
- *  接口地址
- *
- *  @return 接口地址
+ api请求地址
+ 
+ @return api请求地址
  */
 - (NSString *)apiMethodName;
 
@@ -76,18 +77,17 @@ typedef NS_ENUM(NSInteger , YXYRequestSerializerType) {
 //MARK: resonseObject config
 
 /**
- *  处理responseJSONObject，当外部访问 self.responseJSONObject 的时候就会返回这个方法处理后的数据
- *
- *  @param responseObject 输入的 responseObject ，在方法内切勿使用 self.responseJSONObject
- *
- *  @return 处理后的responseJSONObject
+ 对网络请求返回的JSON数据进行建模处理，返回model数组
+ 
+ @param JSONResponseObject 网络请求返回的JSON数据
+ @return 建模后的model数组
  */
-- (id)responseProcess:(id)responseObject;
+- (id)modelingFormJSONResponseObject:(id)JSONResponseObject;
 
 /**
  *  是否忽略统一的参数加工，默认返回否，resonseObject 将返回加工后的数据。
  *
- *  @return 返回 YES，那么 self.responseJSONObject 将返回原始的数据
+ *  @return 返回 YES，那么 self.modeledResponseObject 将返回原始的数据
  */
 - (BOOL)ignoreUnifiedResponseProcess;
 
@@ -206,13 +206,13 @@ typedef NS_ENUM(NSInteger , YXYRequestSerializerType) {
 @property (nonatomic, weak) id<YXYRequestDelegate> delegate;
 @property (nonatomic, weak, readonly) id<YXYAPIRequest> child;
 /**
- *  当通过get方式访问 responseJSONObject 时就会得到加工后的数据
+ *  当通过get方式访问 modeledResponseObject 时就会得到加工后的数据
  */
-@property (nonatomic, strong) id responseJSONObject;
+@property (nonatomic, strong) id modeledResponseObject;
 /**
  *  接口返回的原始数据
  */
-@property (nonatomic, strong, readonly) id rawJSONObject;
+@property (nonatomic, strong) id rawJSONResponseObject;
 @property (nonatomic, strong) NSError *error;
 @property (nonatomic, strong, readonly) id cacheJson;
 @property (nonatomic, strong, readonly) NSString *urlString;

@@ -150,37 +150,41 @@
  
  @return 加工后的JSON数据
  */
-- (id)responseJSONObject{
-    id responseJSONObject = nil;
+- (id)modeledResponseObject{
+    
     //TODO: 通过YXYNetworkConfig统一加工response
     if (self.config.processRule && [self.config.processRule respondsToSelector:@selector(processResponseWithRequest:)]) {
         if (([self.child respondsToSelector:@selector(ignoreUnifiedResponseProcess)] && ![self.child ignoreUnifiedResponseProcess]) ||
             ![self.child respondsToSelector:@selector(ignoreUnifiedResponseProcess)]) {
-            responseJSONObject = [self.config.processRule processResponseWithRequest:_responseJSONObject];
-            if ([self.child respondsToSelector:@selector(responseProcess:)]){
-                responseJSONObject = [self.child responseProcess:responseJSONObject];
+            
+            id modeledResponse = nil;
+            modeledResponse = [self.config.processRule processResponseWithRequest:_rawJSONResponseObject];
+            
+            if ([self.child respondsToSelector:@selector(modelingFormJSONResponseObject:)]) {
+                modeledResponse = [self.child modelingFormJSONResponseObject:modeledResponse];
             }
-            return responseJSONObject;
+            return modeledResponse;
         }
     }
     
-    if ([self.child respondsToSelector:@selector(responseProcess:)]){
-        responseJSONObject = [self.child responseProcess:_responseJSONObject];
-        return responseJSONObject;
+    if ([self.child respondsToSelector:@selector(modelingFormJSONResponseObject:)]){
+        return [self.child modelingFormJSONResponseObject:_rawJSONResponseObject];
     }
-    return _responseJSONObject;
+    
+    //   @[@"数据建模失败"];
+    return _rawJSONResponseObject;
     
 }
 
 
-/**
- 返回未经处理的数据
- 
- @return 未经处理的后台数据
- */
-- (id)rawJSONObject{
-    return _responseJSONObject;
-}
+///**
+// 返回未经处理的数据
+//
+// @return 未经处理的后台数据
+// */
+//- (id)request.rawJSONResponseObject = responseObject;{
+//    return _modeledResponseObject;
+//}
 
 
 /**
@@ -240,9 +244,11 @@
 - (NSString *)urlStringForQuery{
     NSMutableString *urlString = [[NSMutableString alloc] init];
     [urlString appendString:@"?"];
-    [self.queryArgument enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-        [urlString appendFormat:@"%@=%@&", key, obj];
-    }];
+    NSArray *keyArray = [self.queryArgument allKeys];
+    for(NSString *key in keyArray)
+    {
+        [urlString appendFormat:@"%@=%@&", key, self.queryArgument[key]];
+    }
     [urlString deleteCharactersInRange:NSMakeRange(urlString.length - 1, 1)];
     return [urlString copy];
 }

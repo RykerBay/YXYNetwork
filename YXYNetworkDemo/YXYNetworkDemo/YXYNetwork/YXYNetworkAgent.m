@@ -112,13 +112,13 @@
             {
                 if([self.config.processRule validResponseObject:responseObject])
                 {
-                    request.responseJSONObject = responseObject;
+                    request.rawJSONResponseObject = responseObject;
                     [self handleRequestSuccess:task];
                 }
                 else
                 {
                     NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
-                    request.responseJSONObject = responseObject;
+                    request.rawJSONResponseObject = responseObject;
                     [self handleRequestFailure:task error:error];
                 }
             }
@@ -139,13 +139,13 @@
                 {
                     if([self.config.processRule validResponseObject:responseObject])
                     {
-                        request.responseJSONObject = responseObject;
+                        request.rawJSONResponseObject = responseObject;
                         [self handleRequestSuccess:task];
                     }
                     else
                     {
                         NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
-                        request.responseJSONObject = responseObject;
+                        request.rawJSONResponseObject = responseObject;
                         [self handleRequestFailure:task error:error];
                     }
                 }
@@ -164,13 +164,13 @@
                 {
                     if([self.config.processRule validResponseObject:responseObject])
                     {
-                        request.responseJSONObject = responseObject;
+                        request.rawJSONResponseObject = responseObject;
                         [self handleRequestSuccess:task];
                     }
                     else
                     {
                         NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
-                        request.responseJSONObject = responseObject;
+                        request.rawJSONResponseObject = responseObject;
                         [self handleRequestFailure:task error:error];
                     }
                 }
@@ -211,7 +211,7 @@
         
         //TODO: 更新缓存
         if (([request.child respondsToSelector:@selector(cacheResponse)] && [request.child cacheResponse])) {
-            [[[PINCache sharedCache] diskCache] setObject:request.responseJSONObject forKey:request.urlString];
+            [[[PINCache sharedCache] diskCache] setObject:request.modeledResponseObject forKey:request.urlString];
         }
         
         if (request.delegate != nil && [request.delegate respondsToSelector:@selector(requestSuccess:)]) {
