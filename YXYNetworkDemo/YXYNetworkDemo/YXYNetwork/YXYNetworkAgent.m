@@ -9,8 +9,8 @@
 #import "YXYNetworkAgent.h"
 #import "YXYBaseRequest.h"
 #import "YXYNetworkConfig.h"
-#import <AFNetworking.h>
-#import <PINCache.h>
+#import "AFNetworking.h"
+#import "PINCache.h"
 
 @interface YXYNetworkAgent ()
 
@@ -117,7 +117,8 @@
                 }
                 else
                 {
-                    NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:nil];
+                    NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadServerResponse userInfo:
+                                      @{@"Error Message": responseObject[@"Message"]}];
                     request.rawJSONResponseObject = responseObject;
                     [self handleRequestFailure:task error:error];
                 }
@@ -209,7 +210,7 @@
     YXYBaseRequest *request = _requestsRecord[key];
     if (request) {
         
-        //TODO: 更新缓存
+        //更新缓存
         if (([request.child respondsToSelector:@selector(cacheResponse)] && [request.child cacheResponse])) {
             [[[PINCache sharedCache] diskCache] setObject:request.modeledResponseObject forKey:request.urlString];
         }
@@ -220,6 +221,7 @@
         if (request.delegate != nil && [request.delegate respondsToSelector:@selector(requestFinished:error:)]) {
             [request.delegate requestFinished:request error:nil];
         }
+        
         if (request.successCompletionBlock) {
             request.successCompletionBlock(request);
         }

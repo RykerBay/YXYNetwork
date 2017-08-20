@@ -41,12 +41,6 @@ typedef NS_ENUM(NSInteger , YXYRequestSerializerType) {
 /*--------------------------------------------*/
 //MARK: base config
 
-/**
- api请求地址
- 
- @return api请求地址
- */
-- (NSString *)apiMethodName;
 
 /**
  *  请求方式，包括Get、Post、Head、Put、Delete、Patch，具体查看 YXYRequestMethod
@@ -56,6 +50,13 @@ typedef NS_ENUM(NSInteger , YXYRequestSerializerType) {
 - (YXYRequestMethod)requestMethod;
 
 @optional
+
+/**
+ api请求地址
+ 
+ @return api请求地址
+ */
+- (NSString *)apiMethodName;
 
 /*--------------------------------------------*/
 //MARK: URL config
@@ -82,14 +83,14 @@ typedef NS_ENUM(NSInteger , YXYRequestSerializerType) {
  @param JSONResponseObject 网络请求返回的JSON数据
  @return 建模后的model数组
  */
-- (id)modelingFormJSONResponseObject:(id)JSONResponseObject;
+- (NSArray *)modelingFormJSONResponseObject:(id)JSONResponseObject;
 
 /**
  *  是否忽略统一的参数加工，默认返回否，resonseObject 将返回加工后的数据。
  *
- *  @return 返回 YES，那么 self.modeledResponseObject 将返回原始的数据
+ *  @return 返回 YES，那么 rawJSONResponseObject 将返回原始的数据
  */
-- (BOOL)ignoreUnifiedResponseProcess;
+- (BOOL)ignoreResponseObjectUniformFiltering;
 
 /**
  检查请求返回的数据是否不可用，默认返回否，具体判断方法可以通过API自行设定
@@ -141,19 +142,19 @@ typedef NS_ENUM(NSInteger , YXYRequestSerializerType) {
 
 
 /**
-    muiltpart数据，用于上传操作
-    用法：在API接口中实现代理方法
-    - (AFConstructingBlock)constructingBodyBlock {
-        return ^(id<AFMultipartFormData> formData) {
-            for (UIImage *image in _images) {
-                NSData *data = UIImageJPEGRepresentation(image, 1.0);
-                NSString *name = @"images";
-                NSString *formKey = @"images";
-                NSString *type = @"image/jpeg";
-                [formData appendPartWithFileData:data name:formKey fileName:name mimeType:type];
-            }
-        };
-    }
+ muiltpart数据，用于上传操作
+ 用法：在API接口中实现代理方法
+ - (AFConstructingBlock)constructingBodyBlock {
+ return ^(id<AFMultipartFormData> formData) {
+ for (UIImage *image in _images) {
+ NSData *data = UIImageJPEGRepresentation(image, 1.0);
+ NSString *name = @"images";
+ NSString *formKey = @"images";
+ NSString *type = @"image/jpeg";
+ [formData appendPartWithFileData:data name:formKey fileName:name mimeType:type];
+ }
+ };
+ }
  
  @return 用于muiltpart的数据block
  */
@@ -206,9 +207,14 @@ typedef NS_ENUM(NSInteger , YXYRequestSerializerType) {
 @property (nonatomic, weak) id<YXYRequestDelegate> delegate;
 @property (nonatomic, weak, readonly) id<YXYAPIRequest> child;
 /**
- *  当通过get方式访问 modeledResponseObject 时就会得到加工后的数据
+ *  将json建模后的model数组
  */
-@property (nonatomic, strong) id modeledResponseObject;
+@property (nonatomic, strong) NSArray *modeledResponseObject;
+
+/**
+ * 过滤后的json数据
+ */
+@property (nonatomic, strong) id filteredJSONResponseObject;
 /**
  *  接口返回的原始数据
  */

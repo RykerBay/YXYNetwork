@@ -127,8 +127,6 @@
 				5B1EEAF11F13224B008AE277 /* YXYNetworkAgent.m */,
 				5B1EEAF31F132300008AE277 /* YXYNetworkConfig.h */,
 				5B1EEAF41F132300008AE277 /* YXYNetworkConfig.m */,
-				5B1EEAF61F132371008AE277 /* YXYBaseFilter.h */,
-				5B1EEAF71F132371008AE277 /* YXYBaseFilter.m */,
 			);
 			name = YXYNetwork;
 			sourceTree = "<group>";
@@ -162,6 +160,8 @@
 				5BD924CE1F131D1400E2EFCC /* AppDelegate.m */,
 				5BD924D01F131D1400E2EFCC /* ViewController.h */,
 				5BD924D11F131D1400E2EFCC /* ViewController.m */,
+				5B1EEAF61F132371008AE277 /* YXYBaseFilter.h */,
+				5B1EEAF71F132371008AE277 /* YXYBaseFilter.m */,
 				5BD924D31F131D1400E2EFCC /* Main.storyboard */,
 				5BD924D61F131D1400E2EFCC /* Assets.xcassets */,
 				5BD924D81F131D1400E2EFCC /* LaunchScreen.storyboard */,

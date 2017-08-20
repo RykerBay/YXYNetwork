@@ -32,13 +32,23 @@
 - (NSDictionary *)processArgumentWithRequest:(NSDictionary *)argument query:(NSDictionary *)queryArgument;
 
 /**
- *  用于统一加工response，返回处理后response
+ *  用于全部API统一过滤response，返回处理后response
  *
  *  @param responseObject response
  *
  *  @return 处理后的response
  */
-- (id)processResponseWithRequest:(id)responseObject;
+- (id)uniformlyFilterResponseObject: (id)responseObject;
+
+
+/**
+ API各自过滤response,返回处理后response
+ 
+ @param responseObject responseObject
+ @return 处理后response
+ */
+- (id)specificallyFilterResponseObject: (id)responseObject;
+
 
 /**
  用于判断返回数据是否合法

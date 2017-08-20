@@ -9,7 +9,7 @@
 #import "YXYBaseRequest.h"
 #import "YXYNetworkConfig.h"
 #import "YXYNetworkAgent.h"
-#import <PINCache.h>
+#import "PINCache.h"
 
 
 @interface YXYBaseRequest ()
@@ -143,50 +143,59 @@
     self.progressBlock = nil;
 }
 
-#pragma mark - response object handle
+#pragma mark - handle response object
 
 /**
- 统一加工responseObject,通过YXYNetworkConfig中的processRule来对数据进行加工，把数据加工与请求分离开。
+ 对_rawJSONResponseObject进行过滤,返回过滤后的json数据
  
- @return 加工后的JSON数据
+ @return 过滤后的json数据，如果没有过滤则返回nil
  */
-- (id)modeledResponseObject{
-    
-    //TODO: 通过YXYNetworkConfig统一加工response
-    if (self.config.processRule && [self.config.processRule respondsToSelector:@selector(processResponseWithRequest:)]) {
-        if (([self.child respondsToSelector:@selector(ignoreUnifiedResponseProcess)] && ![self.child ignoreUnifiedResponseProcess]) ||
-            ![self.child respondsToSelector:@selector(ignoreUnifiedResponseProcess)]) {
+- (id)filteredJSONResponseObject {
+    //先是否过滤，通过YXYNetworkConfig统一加工response，
+    if (self.config.processRule && [self.config.processRule respondsToSelector:@selector(uniformlyFilterResponseObject:)]) {
+        if (
+            ([self.child respondsToSelector:@selector(ignoreResponseObjectUniformFiltering)] && ![self.child ignoreResponseObjectUniformFiltering])
+            ||
+            ![self.child respondsToSelector:@selector(ignoreResponseObjectUniformFiltering)] ) {
             
-            id modeledResponse = nil;
-            modeledResponse = [self.config.processRule processResponseWithRequest:_rawJSONResponseObject];
+            //全部API过滤，先过滤掉不要的信息
+            id filteredObject = [self.config.processRule uniformlyFilterResponseObject:_rawJSONResponseObject];
             
-            if ([self.child respondsToSelector:@selector(modelingFormJSONResponseObject:)]) {
-                modeledResponse = [self.child modelingFormJSONResponseObject:modeledResponse];
+            //子API各自过滤
+            if ([self.config.processRule respondsToSelector:@selector(specificallyFilterResponseObject:)]) {
+                filteredObject = [self.config.processRule specificallyFilterResponseObject:filteredObject];
             }
-            return modeledResponse;
+            
+            return filteredObject;
+        }
+    }
+    return nil;
+}
+
+
+/**
+ 对_rawJSONResponseObject进行过滤、建模，返回建模后的model数组
+ 
+ @return 建模后的model数组
+ */
+- (NSArray *)modeledResponseObject {
+    //是否过滤
+    if (self.filteredJSONResponseObject) {
+        if ([self.child respondsToSelector:@selector(modelingFormJSONResponseObject:)]) {
+            return  [self.child modelingFormJSONResponseObject:self.filteredJSONResponseObject];
         }
     }
     
+    //是否建模
     if ([self.child respondsToSelector:@selector(modelingFormJSONResponseObject:)]){
         return [self.child modelingFormJSONResponseObject:_rawJSONResponseObject];
     }
     
-    //   @[@"数据建模失败"];
-    return _rawJSONResponseObject;
+    
+    //无需建模，直接返回空数组
+    return @[];
     
 }
-
-
-///**
-// 返回未经处理的数据
-//
-// @return 未经处理的后台数据
-// */
-//- (id)request.rawJSONResponseObject = responseObject;{
-//    return _modeledResponseObject;
-//}
-
-
 /**
  缓存地址数据
  
@@ -224,8 +233,12 @@
         if ( [self.child respondsToSelector:@selector(useCustomApiMethodName)] && [self.child useCustomApiMethodName]) {
             return [self.child apiMethodName];
         }
+        NSString *urlString = baseUrl;
         
-        NSString *urlString = [baseUrl stringByAppendingString:[self.child apiMethodName]];
+        if ([self.child respondsToSelector:@selector(apiMethodName)]) {
+            urlString = [baseUrl stringByAppendingString:[self.child apiMethodName]];
+        }
+        
         //TODO: 当POST下参数不在body中时，拼接queryArgument中的地址
         if (self.queryArgument && [self.queryArgument isKindOfClass:[NSDictionary class]]) {
             return [urlString stringByAppendingString:[self urlStringForQuery]];
